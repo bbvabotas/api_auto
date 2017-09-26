@@ -53,11 +53,53 @@ app.use(bodyParser.urlencoded({
     
 */
 
+
+
+
+
+var testing_status = {}
+app.get('/api/testing_status', function(req, res){
+    res.send(JSON.stringify(testing_status))
+})
+
+app.post('/api/test_apis', function(req, res){
+    var testing_parameters = req.body.parameters
+
+    //Blank the testing_status variable so that we fill it with correct data
+    testing_status = {
+        done: false,
+        api_total: 0,
+        api_results: []
+    }
+
+    //When testing begins, Java could get a length of the APIs that are going to be tested, which can update the testing_status
+    testing_status.api_total = apis.length
+
+    //As the testing goes, update the above testing_status.api_results such as
+    testing_status.api_results.push({
+        "function": "Function name",
+        "endpoint": "Endpoint name",
+        "message": "Some message like 'Error with such and such' or 'Successfully did this and that'",
+        "status": "pass or fail"
+    })
+
+    //Once all of the testing is done, set testing_status.done to true
+})
+
+
+
+
+
+
+
 var status_data = {
     message: '',
     results: false
 }
 app.post(API_URL_GLOMO_API_TESTER_STATUS, function(req, res){
+
+    //url : 192.168.114.75:8080/api/api_test_status
+
     status_data.message = req.body.message
     status_data.results = req.body.results
 
@@ -67,6 +109,9 @@ app.post(API_URL_GLOMO_API_TESTER_STATUS, function(req, res){
 })
 
 app.post(API_URL_GLOMO_API_TESTER_SEND_DATA, function(req, res){
+
+    //url : /api/api_test_send_data
+
     var json_data = {  
         "country": "Mexico",
         "password": "147258",
@@ -130,7 +175,7 @@ app.get(API_URL_GET_ADOBE, function (req, res) {
     //Get the start and end dates and the collection to search in
     var start_date = req.query.start_date, 
         end_date = req.query.end_date
-    var adobe_url = 'mongodb://analytics:Teambotas01@ds023213.mlab.com:23213/adobeanalytics'
+    var adobe_url = process.env.MONGO_ADOBE_URL
     
     // Connect using MongoClient
     MongoClient.connect(adobe_url, function(err, db) {
@@ -638,12 +683,14 @@ var updateReviews = {
 
             //Wait 5 seconds between each app to ensure we don't overdo the scrapers
             setTimeout(()=>{
-                
+                console.log((app_count + 1) + ' out of ' + review_id_data.length)
                 console.log('Update data for: ' + review_id_data[app_count].database_name)
 
-                app_count++
-
-                updateReviews.update()
+                if(review_id_data[app_count].itunes_id != ''){
+                    updateReviews.updateIOS()
+                } else if(review_id_data[app_count].android_id != ''){
+                    updateReviews.updateAndroid()
+                }
 
             }, 5000)
         } else {
@@ -656,9 +703,15 @@ var updateReviews = {
             }, 600000)
         }
         
+    },
+    updateIOS(){
 
-        
-        
+        console.log('using: ' + review_id_data[app_count].itunes_id + ' to update data for ' + review_id_data[app_count].database_name)
+
+        app_count++
+
+        updateReviews.update()
+
         // appStore.app({
         //     id: '994503642',
         //     // sort: store.sort.RECENT,
@@ -678,9 +731,15 @@ var updateReviews = {
         // }).catch((err)=>{
         //     console.log(err)
         // })
-        
-        
-        
+    },
+    updateAndroid(){
+
+        console.log('using: ' + review_id_data[app_count].android_id + ' to update data for ' + review_id_data[app_count].database_name)
+
+        app_count++
+
+        updateReviews.update()
+
         // googlePlayer.reviews({
         //     appId: 'com.bbva.nxt_peru',
         //     page: 0,
@@ -701,7 +760,7 @@ var updateReviews = {
     }
 }
 
-// updateReviews.init();
+//updateReviews.init();
 
 console.log('Listening on port ' + port)
 app.listen(port)
