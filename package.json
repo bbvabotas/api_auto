@@ -1,0 +1,28 @@
+{
+  "name": "nodejs_test",
+  "version": "1.0.0",
+  "description": "NodeJS test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "app-store-scraper": "^0.7.0",
+    "axios": "^0.16.2",
+    "cron": "^1.2.1",
+    "dotenv": "^4.0.0",
+    "express": "^4.15.3",
+    "fs": "0.0.1-security",
+    "google-play-scraper": "^3.3.1",
+    "google-translate-api": "^2.3.0",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13",
+    "mongodb": "^2.2.30",
+    "nodemailer": "^4.0.1",
+    "papaparse": "^4.3.5",
+    "path": "^0.12.7",
+    "request": "^2.81.0"
+  }
+}
